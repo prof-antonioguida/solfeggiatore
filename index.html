@@ -107,6 +107,15 @@ kbd{background:#e0ddd2;border:1px solid #b4b0a0;border-radius:2px;padding:1px 4p
     <button class="btn" id="orientBtn" onclick="toggleOrientation()" title="Cambia orientamento foglio" data-i18n-title="orientation" style="padding:3px 7px;">
       <svg id="orientIcon" width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="12" height="20" rx="1"/></svg>
     </button>
+    <button class="btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Schermo intero" style="padding:4px 7px;">
+      <svg id="fsIcon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Expand arrows (default state) -->
+        <polyline points="1,5 1,1 5,1"/>
+        <polyline points="11,1 15,1 15,5"/>
+        <polyline points="15,11 15,15 11,15"/>
+        <polyline points="5,15 1,15 1,11"/>
+      </svg>
+    </button>
     <input type="file" id="loadFileInput" accept=".solf" style="display:none" onchange="onLoadFile(event)">
     <div style="width:1px;height:18px;background:var(--border)"></div>
     <button class="btn" id="undoBtn" onclick="undoAction()" title="Annulla (Ctrl+Z)" style="font-size:1rem;padding:3px 8px;">↩</button>
@@ -1484,6 +1493,36 @@ function togSelect(){
   }
   document.getElementById('selectBtn').classList.toggle('active',tool.select);
 }
+function toggleFullscreen(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen().catch(()=>{});
+  }
+}
+// Update icon and button state when fullscreen changes (e.g. ESC pressed)
+document.addEventListener('fullscreenchange',()=>{
+  const isFs=!!document.fullscreenElement;
+  const btn=document.getElementById('fullscreenBtn');
+  const ico=document.getElementById('fsIcon');
+  if(btn) btn.classList.toggle('active',isFs);
+  if(ico){
+    // Expand arrows when normal, contract arrows when fullscreen
+    if(isFs){
+      ico.innerHTML=`<!-- Contract arrows (fullscreen state) -->
+        <polyline points="1,6 5,6 5,1" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="10,1 10,6 15,6" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="15,10 10,10 10,15" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="5,15 5,10 1,10" stroke="currentColor" stroke-width="1.6" fill="none"/>`;
+    } else {
+      ico.innerHTML=`<!-- Expand arrows -->
+        <polyline points="1,5 1,1 5,1" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="11,1 15,1 15,5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="15,11 15,15 11,15" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <polyline points="5,15 1,15 1,11" stroke="currentColor" stroke-width="1.6" fill="none"/>`;
+    }
+  }
+});
 function toggleTitleStyle(s){
   titleStyle[s]=!titleStyle[s];
   const id='title'+s.charAt(0).toUpperCase()+s.slice(1);
